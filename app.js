@@ -100,14 +100,46 @@ const CourseInfo = {
 //   const result = getLearnerData(CourseInfo, AssignmentGroup, LearnerSubmissions);
   
 //   console.log(result);
+
+
+
 // ----------------------MY CODE--------------------------------------------------------------------------------------
-//PLAN: WORK STEP BY STEP___ explain the code to avoid confusion later on
+//PLAN: WORK STEP BY STEP___ explain the code to avoid confusion later on(for myself)-- *remove comments in the final commit
 // STEP1: DECLARE FUNCTION
 //Step 2: If an AssignmentGroup does not belong to its course (mismatching course_id), your program should throw an error, letting the user know that the input was invalid. Similar data validation should occur elsewhere within the program.
+
+
 function getLearnerData(course, assignmentGroup, submissions) {
     const isValidGroup = assignmentGroup.course_id === course.id;
     if (!isValidGroup) {
         throw new Error("Invalid input: The AssignmentGroup does not belong to the course.");
-
     }
+
+    // We have to initialize an empty object to store the data related to each learner's assignment submission
+    
+    const learnerData = {};
+
+    //for..of loop to iterate over each submission
+    for (const submission of submissions) {
+        const { learner_id, assignment_id, submission: { score, submitted_at } } = submission;
+        
+        // another if statement
+        if (!learnerData[learner_id]) {
+            learnerData[learner_id] = {
+                id: learner_id,
+                totalScore: 0,
+                totalPossible: 0,
+                individualScores: {}
+            };
+        }
+        //getting assignments from the assignment group
+
+        let assignment;
+        assignmentGroup.assignments.forEach(a => {
+            if (a.id === assignment_id) {
+                assignment = a;
+            }
+        });
+    } 
+
 }
