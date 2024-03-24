@@ -126,7 +126,7 @@ function getLearnerData(course, assignmentGroup, submissions) {
         const { learner_id, assignment_id, submission: { score, submitted_at } } = submission;
         
         // Check if the learner's data exists in our learnerData object,
-            // If not, initialize their data with default values.
+        // If not, initialize their data with default values.
         if (!learnerData[learner_id]) {
             learnerData[learner_id] = {
                 id: learner_id, // Set the learner's ID
@@ -146,24 +146,35 @@ function getLearnerData(course, assignmentGroup, submissions) {
         //was the assignment submitted?? is it due yet?? don't forget the 10% penalty
     
         if (assignment && new Date(assignment.due_at) < new Date()) {
-            const pointsPossible = assignment.points_possible || 1; // to avoid division by zero..
+
+            try {
+                const pointsPossible = assignment.points_possible || 1;
         
-            let actualScore = score;
-            if (new Date(submitted_at) > new Date(assignment.due_at)) {
-                const penalty = score * 0.1; // 10% penalty
-                actualScore -= penalty;
+                let actualScore = score;
+                if (new Date(submitted_at) > new Date(assignment.due_at)) {
+                    const penalty = score * 0.1; // 10% penalty
+                    actualScore -= penalty;
+                }
+
+                //What if the points_possible is zero?
+                if (pointsPossible !== 0) {
+
+                    const individualScore = actualScore / pointsPossible;
+
+                    learnerData[learner_id].totalScore += actualScore;
+                    learnerData[learner_id].totalPossible += pointsPossible;
+                    learnerData[learner_id].individualScores[assignment_id] = individualScore;
+                
+                } else {
+                    console.error("Error: points_possible is zero for assignment", assignment_id); //doesn't work yet
+                }
+            } catch (error) {
+                // Log or handle any other potential errors
+                console.error("An error occurred while processing the submission:", error.message);
             }
-
-            //calculate the scores
-            const individualScore = actualScore / pointsPossible;
-
-            //update
-            learnerData[learner_id].totalScore += actualScore;
-            learnerData[learner_id].totalPossible += pointsPossible;
-            learnerData[learner_id].individualScores[assignment_id] = individualScore;
         }
+    
     }
-
         const result = Object.values(learnerData).map(data => {
             const avg = data.totalScore / data.totalPossible;
             const formattedData = {
