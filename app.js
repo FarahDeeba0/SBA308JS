@@ -103,7 +103,7 @@ const CourseInfo = {
 
 
 
-// ----------------------MY CODE--------------------------------------------------------------------------------------
+// ----------------------MY CODE that does not work--------------------------------------------------------------------------------------
 //PLAN: WORK STEP BY STEP___ explain the code to avoid confusion later on(for myself)-- *remove comments in the final commit
 // STEP1: DECLARE FUNCTION
 //Step 2: If an AssignmentGroup does not belong to its course (mismatching course_id), your program should throw an error, letting the user know that the input was invalid. Similar data validation should occur elsewhere within the program.
@@ -132,14 +132,47 @@ function getLearnerData(course, assignmentGroup, submissions) {
                 individualScores: {}
             };
         }
+
         //getting assignments from the assignment group
 
-        let assignment;
-        assignmentGroup.assignments.forEach(a => {
-            if (a.id === assignment_id) {
-                assignment = a;
-            }
-        });
-    } 
+        const assignment = assignmentGroup.assignments.find(a => a.id === assignment_id);
 
-}
+
+        //was the assignment submitted?? is it due yet?? don't forget the 10% penalty
+    
+        if (assignment && new Date(assignment.due_at) < new Date()) {
+            const pointsPossible = assignment.points_possible || 1; // to avoid division by zero..
+        
+            let actualScore = score;
+            if (new Date(submitted_at) > new Date(assignment.due_at)) {
+                const penalty = score * 0.1; // 10% penalty
+                actualScore -= penalty;
+            }
+
+            //calculate the scores
+            const individualScore = actualScore / pointsPossible;
+
+            //update
+            learnerData[learner_id].totalScore += actualScore;
+            learnerData[learner_id].totalPossible += pointsPossible;
+            learnerData[learner_id].individualScores[assignment_id] = individualScore;
+        }
+
+        const result = Object.values(learnerData).map(data => {
+            const avg = data.totalScore / data.totalPossible;
+            const formattedData = {
+                id: data.id,
+                avg: avg.toFixed(3),
+            };
+
+            for (const assignmentId in data.individualScores) {
+                formattedData[assignmentId] = data.individualScores[assignmentId].toFixed(3);
+            }
+      
+            return formattedData;
+        });
+        return result;
+    }
+
+    const result = getLearnerData(CourseInfo, AssignmentGroup, LearnerSubmissions);
+    console.log(result);
