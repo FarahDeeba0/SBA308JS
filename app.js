@@ -110,7 +110,7 @@ const CourseInfo = {
 
 
 function getLearnerData(course, assignmentGroup, submissions) {
-
+    try {
     const isValidGroup = assignmentGroup.course_id === course.id;
     if (!isValidGroup) {
         
@@ -147,7 +147,6 @@ function getLearnerData(course, assignmentGroup, submissions) {
     
         if (assignment && new Date(assignment.due_at) < new Date()) {
 
-            try {
                 const pointsPossible = assignment.points_possible || 1;
         
                 let actualScore = score;
@@ -168,10 +167,7 @@ function getLearnerData(course, assignmentGroup, submissions) {
                 } else {
                     console.error("Error: points_possible is zero for assignment", assignment_id); //doesn't work yet
                 }
-            } catch (error) {
-                // Log or handle any other potential errors
-                console.error("An error occurred while processing the submission:", error.message);
-            }
+            
         }
     
     }
@@ -189,6 +185,11 @@ function getLearnerData(course, assignmentGroup, submissions) {
             return formattedData;
         });
         return result;
+
+    } catch (error) {
+        // Log or handle any other potential errors
+        console.error("An error occurred while processing the submission:", error.message);
+    }
     }
 
     const result = getLearnerData(CourseInfo, AssignmentGroup, LearnerSubmissions);
