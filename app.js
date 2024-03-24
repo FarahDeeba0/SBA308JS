@@ -110,7 +110,8 @@ const CourseInfo = {
 
 
 function getLearnerData(course, assignmentGroup, submissions) {
-    try {
+    const learnerData = {};
+
     const isValidGroup = assignmentGroup.course_id === course.id;
     if (!isValidGroup) {
         
@@ -119,7 +120,7 @@ function getLearnerData(course, assignmentGroup, submissions) {
 
     // We have to initialize an empty object to store the data related to each learner's assignment submission
     
-    const learnerData = {};
+    
 
     //for..of loop to iterate over each submission
     for (const submission of submissions) {
@@ -147,7 +148,7 @@ function getLearnerData(course, assignmentGroup, submissions) {
     
         if (assignment && new Date(assignment.due_at) < new Date()) {
 
-                const pointsPossible = assignment.points_possible || 1;
+                const pointsPossible = assignment.points_possible || 0;
         
                 let actualScore = score;
                 if (new Date(submitted_at) > new Date(assignment.due_at)) {
@@ -159,13 +160,12 @@ function getLearnerData(course, assignmentGroup, submissions) {
                 if (pointsPossible !== 0) {
 
                     const individualScore = actualScore / pointsPossible;
-
                     learnerData[learner_id].totalScore += actualScore;
                     learnerData[learner_id].totalPossible += pointsPossible;
                     learnerData[learner_id].individualScores[assignment_id] = individualScore;
                 
                 } else {
-                    console.error("Error: points_possible is zero for assignment", assignment_id); //doesn't work yet
+                    console.error("Error: points_possible is zero for assignment", assignment_id);
                 }
             
         }
@@ -186,10 +186,6 @@ function getLearnerData(course, assignmentGroup, submissions) {
         });
         return result;
 
-    } catch (error) {
-        // Log or handle any other potential errors
-        console.error("An error occurred while processing the submission:", error.message);
-    }
     }
 
     const result = getLearnerData(CourseInfo, AssignmentGroup, LearnerSubmissions);
@@ -204,9 +200,6 @@ console.log(result);
 // is it in 0.01 decimal form? yes except submission '2' with student id: 125
 //does the penalty get subtracted properly? //yes 10% gets subtracted
 // does the output match exactly what was asked for? - The numbers are rounded to the nearest decimal in my code
+//What if points_possible is 0? - gives an error
 
-//REQUIREMENTS NOT MET
-//You should also account for potential errors in the data that your program receives. 
-//What if points_possible is 0 ? 
-//You cannot divide by zero.What if a value that you are expecting to be a number is instead a string ?
 
