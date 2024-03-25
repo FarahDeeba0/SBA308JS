@@ -104,30 +104,19 @@ const CourseInfo = {
 
 
 // ----------------------MY CODE--------------------------------------------------------------------------------------
-//PLAN: WORK STEP BY STEP___ explain the code to avoid confusion later on(for myself)-- *remove comments in the final commit
-// STEP1: DECLARE FUNCTION
-//Step 2: If an AssignmentGroup does not belong to its course (mismatching course_id), your program should throw an error, letting the user know that the input was invalid. Similar data validation should occur elsewhere within the program.
-
 
 function getLearnerData(course, assignmentGroup, submissions) {
 
     const learnerData = {};
     const result = [];
-
-
     try {
 
-      
         const isValidGroup = assignmentGroup.course_id === course.id;
+
         if (!isValidGroup) {
-        
-            throw new Error("Invalid input: The AssignmentGroup does not belong to the course.");
+        console.error("Invalid input: The AssignmentGroup does not belong to the course.");
         }
-
-        // We have to initialize an empty object to store the data related to each learner's assignment submission
     
-    
-
         //for..of loop to iterate over each submission
         for (const submission of submissions) {
             const { learner_id, assignment_id, submission: { score, submitted_at } } = submission;
@@ -145,13 +134,11 @@ function getLearnerData(course, assignmentGroup, submissions) {
 
             //QUESTION: why do we set the initial values to 0?  - because it ensures that they are numeric values and avoids issues such as `NaN` errors when performing arithmetic operations
 
-            //getting assignments from the assignment group
 
+            //getting assignments from the assignment group
             const assignment = assignmentGroup.assignments.find(a => a.id === assignment_id);
 
-
-            //was the assignment submitted?? is it due yet?? don't forget the 10% penalty
-    
+            //was the assignment submitted?? is it due yet?... and the 10% penalty
             if (assignment && new Date(assignment.due_at) < new Date()) {
 
                 const pointsPossible = assignment.points_possible || 0;
@@ -181,11 +168,11 @@ function getLearnerData(course, assignmentGroup, submissions) {
             const avg = data.totalScore / data.totalPossible;
             const formattedData = {
                 id: data.id,
-                avg: parseFloat(avg.toFixed(3)), //freecodecamp: use parseFloat() to convert string to floating point number.... here we use it to convert the avg to number
+                avg: parseFloat(avg.toFixed(3)),
             };
 
             for (const assignmentId in data.individualScores) {
-                formattedData[assignmentId] = parseFloat(data.individualScores[assignmentId].toFixed(3)); //converts the assignment strings to numbers--if you add parseFloat 
+                formattedData[assignmentId] = parseFloat(data.individualScores[assignmentId].toFixed(3));
             }
       
             return formattedData;
@@ -202,15 +189,3 @@ function getLearnerData(course, assignmentGroup, submissions) {
     const result = getLearnerData(CourseInfo, AssignmentGroup, LearnerSubmissions);
 console.log(result);
     
-
-
-
-//what to check for at the end:
-//does the code work with different numbers? //suprsingly yes :) // and works with different due dates
-// any edgecases? ---- does it throw errors properly? yes-----
-// is it in 0.01 decimal form? yes except submission '2' with student id: 125
-//does the penalty get subtracted properly? //yes 10% gets subtracted
-// does the output match exactly what was asked for? - The numbers are rounded to the nearest decimal in my code
-//What if points_possible is 0? - gives an error
-
-
