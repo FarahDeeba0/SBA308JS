@@ -110,43 +110,49 @@ const CourseInfo = {
 
 
 function getLearnerData(course, assignmentGroup, submissions) {
+
     const learnerData = {};
+    const result = [];
 
-    const isValidGroup = assignmentGroup.course_id === course.id;
-    if (!isValidGroup) {
+
+    try {
+
+      
+        const isValidGroup = assignmentGroup.course_id === course.id;
+        if (!isValidGroup) {
         
-        throw new Error("Invalid input: The AssignmentGroup does not belong to the course.");
-    }
-
-    // We have to initialize an empty object to store the data related to each learner's assignment submission
-    
-    
-
-    //for..of loop to iterate over each submission
-    for (const submission of submissions) {
-        const { learner_id, assignment_id, submission: { score, submitted_at } } = submission;
-        
-        // Check if the learner's data exists in our learnerData object,
-        // If not, initialize their data with default values.
-        if (!learnerData[learner_id]) {
-            learnerData[learner_id] = {
-                id: learner_id, // Set the learner's ID
-                totalScore: 0, // Initialize total score to 0
-                totalPossible: 0, // Initialize total possible score to 0
-                individualScores: {} // Initialize individual scores object
-            };
+            throw new Error("Invalid input: The AssignmentGroup does not belong to the course.");
         }
 
-        //QUESTION: why do we set the initial values to 0?  - because it ensures that they are numeric values and avoids issues such as `NaN` errors when performing arithmetic operations
-
-        //getting assignments from the assignment group
-
-        const assignment = assignmentGroup.assignments.find(a => a.id === assignment_id);
-
-
-        //was the assignment submitted?? is it due yet?? don't forget the 10% penalty
+        // We have to initialize an empty object to store the data related to each learner's assignment submission
     
-        if (assignment && new Date(assignment.due_at) < new Date()) {
+    
+
+        //for..of loop to iterate over each submission
+        for (const submission of submissions) {
+            const { learner_id, assignment_id, submission: { score, submitted_at } } = submission;
+        
+            // Check if the learner's data exists in our learnerData object,
+            // If not, initialize their data with default values.
+            if (!learnerData[learner_id]) {
+                learnerData[learner_id] = {
+                    id: learner_id, // Set the learner's ID
+                    totalScore: 0, // Initialize total score to 0
+                    totalPossible: 0, // Initialize total possible score to 0
+                    individualScores: {} // Initialize individual scores object
+                };
+            }
+
+            //QUESTION: why do we set the initial values to 0?  - because it ensures that they are numeric values and avoids issues such as `NaN` errors when performing arithmetic operations
+
+            //getting assignments from the assignment group
+
+            const assignment = assignmentGroup.assignments.find(a => a.id === assignment_id);
+
+
+            //was the assignment submitted?? is it due yet?? don't forget the 10% penalty
+    
+            if (assignment && new Date(assignment.due_at) < new Date()) {
 
                 const pointsPossible = assignment.points_possible || 0;
         
@@ -168,10 +174,10 @@ function getLearnerData(course, assignmentGroup, submissions) {
                     console.error("Error: points_possible is zero for assignment", assignment_id);
                 }
             
-        }
+            }
     
-    }
-        const result = Object.values(learnerData).map(data => {
+        }
+       result.push(...Object.values(learnerData).map(data => {
             const avg = data.totalScore / data.totalPossible;
             const formattedData = {
                 id: data.id,
@@ -183,11 +189,16 @@ function getLearnerData(course, assignmentGroup, submissions) {
             }
       
             return formattedData;
-        });
+       }));
+        
+        
         return result;
+    } catch (error) {
+        console.error("An error occurred!");
+        return []; //return empty array if there is an error
 
     }
-
+}
     const result = getLearnerData(CourseInfo, AssignmentGroup, LearnerSubmissions);
 console.log(result);
     
